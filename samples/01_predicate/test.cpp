@@ -39,5 +39,6 @@ void ptrue_pat() {
 
 int main() {
   ptrue();
+  std::cout << "----" << std::endl;
   ptrue_pat();
 }
