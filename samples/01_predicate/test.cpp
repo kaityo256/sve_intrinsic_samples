@@ -3,14 +3,15 @@
 #include <vector>
 
 void show_ppr(svbool_t tp) {
-  std::vector<int8_t> a(64);
-  std::vector<int8_t> b(64);
+  int n = svcntb();
+  std::vector<int8_t> a(n);
+  std::vector<int8_t> b(n);
   std::fill(a.begin(), a.end(), 1);
   std::fill(b.begin(), b.end(), 0);
   svint8_t va = svld1_s8(tp, a.data());
   svst1_s8(tp, b.data(), va);
-  for (int i = 0; i < 64; i++) {
-    std::cout << (int)b[63 - i];
+  for (int i = 0; i < n; i++) {
+    std::cout << (int)b[n - i - 1];
   }
   std::cout << std::endl;
 }
