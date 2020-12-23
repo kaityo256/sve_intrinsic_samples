@@ -40,8 +40,10 @@ void gather() {
   std::shuffle(indices.begin(), indices.end(), std::mt19937());
   svbool_t tp = svptrue_b8();
   svint64_t vindices = svld1_s64(tp, indices.data());
+  printf("vindices=\n");
   svshow(vindices);
   svfloat64_t va = svldff1_gather_s64index_f64(tp, a.data(), vindices);
+  printf("va=\n");
   svshow(va);
 }
 
@@ -61,6 +63,7 @@ void scatter() {
   }
   svbool_t tp = svptrue_b8();
   svint64_t vindices = svld1_s64(tp, indices.data());
+  printf("vindices=\n");
   svshow(vindices);
   svfloat64_t va = svld1_f64(tp, a.data());
   svst1_scatter_s64index_f64(tp, b.data(), vindices, va);
@@ -70,6 +73,10 @@ void scatter() {
 }
 
 int main() {
+  printf("Gather sample\n");
   gather();
+  printf("\n");
+  printf("-----\n");
+  printf("Scatter sample\n");
   scatter();
 }
