@@ -22,4 +22,6 @@ WORKDIR /home/${USER}
 RUN echo 'alias vi=vim' >> /home/${USER}/.bashrc
 RUN echo 'alias ag++="aarch64-linux-gnu-g++ -static -march=armv8-a+sve -O2"' >> /home/${USER}/.bashrc
 COPY dot.vimrc /home/${USER}/.vimrc
+
+ADD https://api.github.com/repos/kaityo256/sve_intrinsic_samples/git/refs/heads/main version.json
 RUN git clone https://github.com/kaityo256/sve_intrinsic_samples.git
