@@ -61,6 +61,20 @@ void add_scalar(){
   printf("addv = %.15f\n", sum2);
 }
 
+void maxv(){
+	const int n = svcntd();
+	std::vector<double> a(n);
+	for (int i=0;i<n;i++){
+		a[i] = (i+1);
+	}
+	std::shuffle(a.begin(), a.end(), std::mt19937());
+  svbool_t tp = svptrue_b64();
+  svfloat64_t va = svld1_f64(tp, a.data());
+	std::cout << "va = " << std::endl;
+	svshow(va);
+	float64_t max = svmaxv(tp, va);
+	std::cout << "max(va) = " << max << std::endl;
+}
 
 int main(){
   std::cout << "add vector" << std::endl;
@@ -69,4 +83,5 @@ int main(){
   std::cout << "add scalar" << std::endl;
   add_scalar();
   std::cout << std::endl;
+	maxv();
 }
