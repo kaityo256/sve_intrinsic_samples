@@ -12,8 +12,8 @@ enum { X,
 
 const int ND = 4;                                // FCCの格子数
 const int N = ND * ND * ND * 4;                   //全粒指数
-double __attribute__((aligned(32))) q[N][4] = {}; //座標
-double __attribute__((aligned(32))) p[N][4] = {}; //運動量
+double __attribute__((aligned(32))) q[3][N] = {}; //座標
+double __attribute__((aligned(32))) p[3][N] = {}; //運動量
 const double dt = 0.01;
 
 /*
@@ -24,26 +24,26 @@ const double dt = 0.01;
 
 void init(void) {
   for (int i = 0; i < N; i++) {
-    p[i][X] = 0.0;
-    p[i][Y] = 0.0;
-    p[i][Z] = 0.0;
+    p[X][i] = 0.0;
+    p[Y][i] = 0.0;
+    p[Z][i] = 0.0;
   }
   for (int iz = 0; iz < ND; iz++) {
     for (int iy = 0; iy < ND; iy++) {
       for (int ix = 0; ix < ND; ix++) {
         int i = (ix + iy * ND + iz * ND * ND) * 4;
-        q[i][X] = ix;
-        q[i][Y] = iy;
-        q[i][Z] = iz;
-        q[i + 1][X] = ix + 0.5;
-        q[i + 1][Y] = iy;
-        q[i + 1][Z] = iz;
-        q[i + 2][X] = ix;
-        q[i + 2][Y] = iy + 0.5;
-        q[i + 2][Z] = iz;
-        q[i + 3][X] = ix;
-        q[i + 3][Y] = iy;
-        q[i + 3][Z] = iz + 0.5;
+        q[X][i] = ix;
+        q[Y][i] = iy;
+        q[Z][i] = iz;
+        q[X][i + 1] = ix + 0.5;
+        q[Y][i + 1] = iy;
+        q[Z][i + 1] = iz;
+        q[X][i + 2] = ix;
+        q[Y][i + 2] = iy + 0.5;
+        q[Z][i + 2] = iz;
+        q[X][i + 3] = ix;
+        q[Y][i + 3] = iy;
+        q[Z][i + 3] = iz + 0.5;
       }
     }
   }
@@ -51,9 +51,9 @@ void init(void) {
   std::mt19937 mt;
   std::uniform_real_distribution<> ud(-0.01, 0.01);
   for (int i = 0; i < N; i++) {
-    q[i][X] += ud(mt);
-    q[i][Y] += ud(mt);
-    q[i][Z] += ud(mt);
+    q[X][i] += ud(mt);
+    q[Y][i] += ud(mt);
+    q[Z][i] += ud(mt);
   }
 }
 
@@ -61,30 +61,30 @@ void init(void) {
 void calc_force_simple(void) {
   for (int i = 0; i < N - 1; i++) {
     // i粒子の座標と運動量を受け取っておく (内側のループでiは変化しないから)
-    double qix = q[i][X];
-    double qiy = q[i][Y];
-    double qiz = q[i][Z];
-    double pix = p[i][X];
-    double piy = p[i][Y];
-    double piz = p[i][Z];
+    double qix = q[X][i];
+    double qiy = q[Y][i];
+    double qiz = q[Z][i];
+    double pix = p[X][i];
+    double piy = p[Y][i];
+    double piz = p[Z][i];
     for (int j = i + 1; j < N; j++) {
-      double dx = q[j][X] - qix;
-      double dy = q[j][Y] - qiy;
-      double dz = q[j][Z] - qiz;
+      double dx = q[X][j] - qix;
+      double dy = q[Y][j] - qiy;
+      double dz = q[Z][j] - qiz;
       double r2 = dx * dx + dy * dy + dz * dz;
       double r6 = r2 * r2 * r2;
       double df = (24.0 * r6 - 48.0) / (r6 * r6 * r2) * dt;
-      p[j][X] -= df * dx;
-      p[j][Y] -= df * dy;
-      p[j][Z] -= df * dz;
+      p[X][j] -= df * dx;
+      p[Y][j] -= df * dy;
+      p[Z][j] -= df * dz;
       pix += df * dx;
       piy += df * dy;
       piz += df * dz;
     }
     // 内側のループで積算したi粒子への力積を書き戻す
-    p[i][X] = pix;
-    p[i][Y] = piy;
-    p[i][Z] = piz;
+    p[X][i] = pix;
+    p[Y][i] = piy;
+    p[Z][i] = piz;
   }
 }
 
@@ -92,30 +92,30 @@ void calc_force_simple(void) {
 void calc_force_simd(void) {
   for (int i = 0; i < N - 1; i++) {
     // i粒子の座標と運動量を受け取っておく (内側のループでiは変化しないから)
-    double qix = q[i][X];
-    double qiy = q[i][Y];
-    double qiz = q[i][Z];
-    double pix = p[i][X];
-    double piy = p[i][Y];
-    double piz = p[i][Z];
+    double qix = q[X][i];
+    double qiy = q[Y][i];
+    double qiz = q[Z][i];
+    double pix = p[X][i];
+    double piy = p[Y][i];
+    double piz = p[Z][i];
     for (int j = i + 1; j < N; j++) {
-      double dx = q[j][X] - qix;
-      double dy = q[j][Y] - qiy;
-      double dz = q[j][Z] - qiz;
+      double dx = q[X][j] - qix;
+      double dy = q[Y][j] - qiy;
+      double dz = q[Z][j] - qiz;
       double r2 = dx * dx + dy * dy + dz * dz;
       double r6 = r2 * r2 * r2;
       double df = (24.0 * r6 - 48.0) / (r6 * r6 * r2) * dt;
-      p[j][X] -= df * dx;
-      p[j][Y] -= df * dy;
-      p[j][Z] -= df * dz;
+      p[X][j] -= df * dx;
+      p[Y][j] -= df * dy;
+      p[Z][j] -= df * dz;
       pix += df * dx;
       piy += df * dy;
       piz += df * dz;
     }
     // 内側のループで積算したi粒子への力積を書き戻す
-    p[i][X] = pix;
-    p[i][Y] = piy;
-    p[i][Z] = piz;
+    p[X][i] = pix;
+    p[Y][i] = piy;
+    p[Z][i] = piz;
   }
 }
 
@@ -145,9 +145,9 @@ std::string p_to_str(void) {
   std::stringstream ss;
   for (int i = 0; i < N; i++) {
     ss << i << " ";
-    ss << p[i][X] << " ";
-    ss << p[i][Y] << " ";
-    ss << p[i][Z] << std::endl;
+    ss << p[X][i] << " ";
+    ss << p[Y][i] << " ";
+    ss << p[Z][i] << std::endl;
   }
   return ss.str();
 }
