@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <limits>
 #include <arm_sve.h>
 
 void svshow(svfloat64_t va){
@@ -76,6 +77,25 @@ void maxv(){
 	std::cout << "max(va) = " << max << std::endl;
 }
 
+void maxnmv(){
+	const int n = svcntd();
+	std::vector<double> a(n);
+	for (int i=0;i<n;i++){
+		a[i] = (i+1);
+	}
+	std::shuffle(a.begin(), a.end(), std::mt19937());
+	a[0] = std::numeric_limits<double>::quiet_NaN();
+  svbool_t tp = svptrue_b64();
+  svfloat64_t va = svld1_f64(tp, a.data());
+	std::cout << "va = " << std::endl;
+	svshow(va);
+	float64_t max = svmaxv(tp, va);
+	std::cout << "maxv(va) = " << max << std::endl;
+	float64_t maxnmv = svmaxnmv(tp, va);
+	std::cout << "maxnmv(va) = " << maxnmv << std::endl;
+
+}
+
 int main(){
   std::cout << "add vector" << std::endl;
   add_vector();
@@ -83,5 +103,10 @@ int main(){
   std::cout << "add scalar" << std::endl;
   add_scalar();
   std::cout << std::endl;
+  std::cout << "maxv" << std::endl;
 	maxv();
+  std::cout << std::endl;
+  std::cout << "maxnmv" << std::endl;
+	maxnmv();
+
 }
