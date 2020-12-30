@@ -9,7 +9,7 @@ enum { X,
        Y,
        Z };
 
-const int ND = 10;                                // FCCの格子数
+const int ND = 4;                                // FCCの格子数
 const int N = ND * ND * ND * 4;                   //全粒指数
 double __attribute__((aligned(32))) q[N][4] = {}; //座標
 double __attribute__((aligned(32))) p[N][4] = {}; //運動量
