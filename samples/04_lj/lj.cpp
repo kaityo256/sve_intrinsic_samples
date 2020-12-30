@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include <sstream>
+#include <arm_sve.h>
 
 enum { X,
        Y,
