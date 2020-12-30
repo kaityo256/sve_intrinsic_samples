@@ -12,6 +12,7 @@ RUN pacman -Syyu --noconfirm
 RUN pacman -S --noconfirm \
   aarch64-linux-gnu-gcc \
   git \
+  make \
   vim \
   qemu \
   qemu-arch-extra
